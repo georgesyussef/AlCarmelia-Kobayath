@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="fr" dir="ltr" id="htmlRoot">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>École Al-Carmelia</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7b1238">
+
+<!-- Webpushr Push Notifications SDK -->
+<script>
+(function(w,d,s,id){
+    if(!w.webpushr){
+        w.webpushr=function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};
+        var js=d.createElement(s);js.id=id;js.async=1;
+        js.src='https://cdn.webpushr.com/app.min.js';
+        var ref=d.getElementsByTagName(s)[0];
+        ref.parentNode.insertBefore(js,ref);
+    }
+})(window,document,'script','webpushr-jssdk');
+ 
+webpushr('setup',{'key':'16fffc156d1ee966b0a475bdcd5a1e56'});
+</script>
+
+<style>
+  :root {
+    --burg: #7b1238;
+    --navy: #12365f;
+    --muted: #718096;
+    --line: #e6e9ef;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+    background: #f4f6f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 15px;
+  }
+  .card {
+    background: #fff;
+    padding: 24px 20px;
+    border-radius: 24px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+    border: 1px solid #e6e9ef;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+  
+  /* --- MODIFICATION LOGO FIT --- */
+  .logo-container {
+    margin-bottom: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .logo-container img {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    max-height: 130px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(123, 18, 56, 0.15));
+  }
+  
+  h1 {
+    margin: 0 0 4px;
+    color: var(--navy);
+    font-size: 22px;
+    font-weight: 800;
+  }
+  p {
+    margin: 0 0 18px;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    margin: 6px 0;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14.5px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  }
+  .parents { background: var(--burg); color: #fff; }
+  .teacher { background: var(--navy); color: #fff; }
+  .admin { background: #eef2f7; color: var(--navy); font-size: 13px; padding: 10px; margin-top: 6px; }
+
+  /* --- BOUTTON INSTALLATION --- */
+  .install-box {
+    width: 100%;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px dashed var(--line);
+  }
+  .btn-install {
+    background: linear-gradient(135deg, #16825d, #0d5c41);
+    color: #fff;
+    font-size: 15px;
+    box-shadow: 0 4px 16px rgba(22, 130, 93, 0.35);
+  }
+
+  /* --- LANGUAGE SELECTOR --- */
+  .lang-switcher {
+    align-self: flex-end;
+    margin-bottom: 12px;
+    background: #f0f4f8;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    cursor: pointer;
+    outline: none;
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <select id="langSelect" class="lang-switcher" onchange="switchLanguage(this.value)">
+      <option value="fr">🇫🇷 Français</option>
+      <option value="ar">🇱🇧 العربية</option>
+      <option value="en">🇬🇧 English</option>
+    </select>
+
+    <div class="logo-container">
+      <img src="icon-512.png" alt="École Al-Carmelia Logo">
+    </div>
+
+    <h1 id="titleTxt">École Al-Carmelia</h1>
+    <p id="welcomeTxt">Bienvenue sur le portail scolaire</p>
+    
+    <a href="parents.html" class="btn parents" id="parentsBtn">🎓 Espace Parents & Élèves</a>
+    <a href="teacher.html" class="btn teacher" id="teacherBtn">👩‍🏫 Espace Enseignants</a>
+    <a href="admin.html" class="btn admin" id="adminBtn">⚙️ Administration</a>
+
+    <div class="install-box">
+      <button id="installBtn" class="btn btn-install">
+        📲 Télécharger / Installer l'Application
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const translations = {
+      fr: {
+        title: "École Al-Carmelia",
+        welcome: "Bienvenue sur le portail scolaire",
+        parents: "🎓 Espace Parents & Élèves",
+        teacher: "👩‍🏫 Espace Enseignants",
+        admin: "⚙️ Administration",
+        install: "📲 Télécharger / Installer l'Application",
+        iphonePrompt: "Pour installer l'application sur iPhone / iPad :\n\n1. Cliquez sur le bouton 'Partager' (📤) en bas de Safari.\n2. Sélectionnez 'Sur l'écran d'accueil' (➕).",
+        alreadyInstalled: "L'application est déjà installée sur votre appareil ou votre navigateur ne prend pas en charge le téléchargement direct."
+      },
+      ar: {
+        title: "مدرسة الكارملية",
+        welcome: "أهلاً بكم في البوابة المدرسية",
+        parents: "🎓 مساحة الأهل والطلاب",
+        teacher: "👩‍🏫 مساحة المعلمين",
+        admin: "⚙️ الإدارة",
+        install: "📲 تحميل / تثبيت التطبيق",
+        iphonePrompt: "لتثبيت التطبيق على جهاز iPhone / iPad :\n\n1. اضغط على زر 'مشاركة' (📤) في أسفل Safari.\n2. اختر 'إضافة إلى الشاشة الرئيسية' (➕).",
+        alreadyInstalled: "التطبيق مثبت بالفعل على جهازك أو متصفحك لا يدعم التحميل المباشر."
+      },
+      en: {
+        title: "Al-Carmelia School",
+        welcome: "Welcome to the school portal",
+        parents: "🎓 Parents & Students Portal",
+        teacher: "👩‍🏫 Teachers Portal",
+        admin: "⚙️ Administration",
+        install: "📲 Download / Install Application",
+        iphonePrompt: "To install the app on iPhone / iPad:\n\n1. Click the 'Share' button (📤) at the bottom of Safari.\n2. Select 'Add to Home Screen' (➕).",
+        alreadyInstalled: "The application is already installed or your browser does not support direct download."
+      }
+    };
+
+    function switchLanguage(lang) {
+      localStorage.setItem('app_lang', lang);
+      const t = translations[lang] || translations.fr;
+      document.getElementById('htmlRoot').dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.getElementById('htmlRoot').lang = lang;
+      
+      document.getElementById('titleTxt').innerText = t.title;
+      document.getElementById('welcomeTxt').innerText = t.welcome;
+      document.getElementById('parentsBtn').innerText = t.parents;
+      document.getElementById('teacherBtn').innerText = t.teacher;
+      document.getElementById('adminBtn').innerText = t.admin;
+      document.getElementById('installBtn').innerText = t.install;
+    }
+
+    const savedLang = localStorage.getItem('app_lang') || 'fr';
+    document.getElementById('langSelect').value = savedLang;
+    switchLanguage(savedLang);
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./webpushr-sw.js')
+          .then(reg => console.log('Webpushr SW Registered'))
+          .catch(err => console.error('Service Worker Error:', err));
+      });
+    }
+
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    installBtn.addEventListener('click', async () => {
+      const lang = localStorage.getItem('app_lang') || 'fr';
+      const t = translations[lang];
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('App Installed Successfully');
+        }
+        deferredPrompt = null;
+      } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        alert(t.iphonePrompt);
+      } else {
+        alert(t.alreadyInstalled);
+      }
+    });
+  </script>
+</body>
+</html>

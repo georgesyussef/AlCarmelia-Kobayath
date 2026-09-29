@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="fr" dir="ltr" id="htmlRoot">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>École Al-Carmelia · Espace Parents</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7b1238">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Al-Carmelia">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<!-- Webpushr Push Notifications SDK -->
+<script>
+(function(w,d,s,id){
+    if(!w.webpushr){
+        w.webpushr=function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};
+        var js=d.createElement(s);js.id=id;js.async=1;
+        js.src='https://cdn.webpushr.com/app.min.js';
+        var ref=d.getElementsByTagName(s)[0];
+        ref.parentNode.insertBefore(js,ref);
+    }
+})(window,document,'script','webpushr-jssdk');
+
+webpushr('setup',{'key':'16fffc156d1ee966b0a475bdcd5a1e56'});
+</script>
+
+<style>
+:root{--burg:#7b1238;--navy:#12365f;--gold:#d7ae45;--cream:#faf7ef;--ink:#172235;--muted:#718096;--line:#e6e9ef;--white:#fff;--danger:#b42318;--green:#16825d}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f4f6f9;color:var(--ink)}
+button,input,select{font:inherit}
+
+.login-modal{position:fixed;inset:0;background:rgba(18,54,95,0.95);display:flex;align-items:center;justify-content:center;z-index:999;padding:15px}
+.login-box{background:#fff;padding:35px 25px;border-radius:18px;width:min(400px,100%);text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2);position:relative}
+.login-box img.logo{width: 220px; max-width: 80%; height: auto; object-fit: contain; margin-bottom: 15px;}
+.login-box h2{margin:0 0 4px;color:var(--navy);font-size:22px}
+.login-box p{margin:0 0 20px;color:var(--muted);font-size:13.5px}
+.login-box input{width:100%;padding:12px;border:1px solid #d8dde6;border-radius:10px;margin-bottom:12px;text-align:left;font-size:14px;outline:none}
+
+.pw-wrap{position:relative;display:flex;align-items:center;margin-bottom:12px}
+.pw-wrap input{margin-bottom:0!important;padding-right:40px!important}
+.pw-toggle{position:absolute;right:12px;background:none;border:none;cursor:pointer;font-size:18px;padding:0;color:var(--muted)}
+
+.btn{border:0;border-radius:10px;padding:11px 16px;cursor:pointer;font-weight:650;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:14px;width:100%}
+.primary{background:var(--burg);color:#fff}
+
+.container{max-width:900px;margin:0 auto;padding:20px 15px}
+.header{background:#fff;border-radius:16px;padding:20px;border:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;flex-wrap:wrap}
+.header-brand{display:flex;align-items:center;gap:15px}
+.header-brand img{width:55px;height:55px;object-fit:contain}
+.header h1{margin:0;font-size:20px;color:var(--navy)}
+.header p{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+.tabs{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:5px}
+.tab-btn{background:#fff;border:1px solid var(--line);padding:10px 18px;border-radius:10px;cursor:pointer;white-space:nowrap;font-weight:600;color:var(--muted)}
+.tab-btn.active{background:var(--burg);color:#fff;border-color:var(--burg)}
+
+.card{background:#fff;border-radius:16px;border:1px solid var(--line);padding:20px;margin-bottom:15px}
+.table-wrap{overflow-x:auto}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left}
+.table th{font-size:12px;color:var(--muted);text-transform:uppercase}
+.badge{display:inline-block;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700}
+.badge.green{background:#e8f7f0;color:var(--green)}
+.badge.red{background:#fde8e8;color:var(--danger)}
+.badge.blue{background:#eef3fa;color:var(--navy)}
+.empty{text-align:center;padding:30px;color:var(--muted)}
+.avg-box{background:linear-gradient(110deg,var(--navy),#28547f);color:#fff;border-radius:14px;padding:18px;text-align:center;margin-bottom:15px}
+.avg-box h3{margin:0;font-size:14px;opacity:0.9}
+.avg-box div{font-size:32px;font-weight:800;margin-top:5px}
+
+.lang-switcher {
+  background: #f0f4f8;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  outline: none;
+}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div id="loginModal" class="login-modal">
+  <div class="login-box">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+      <select class="lang-switcher" onchange="switchLanguage(this.value)">
+        <option value="fr">🇫🇷 FR</option>
+        <option value="ar">🇱🇧 AR</option>
+        <option value="en">🇬🇧 EN</option>
+      </select>
+    </div>
+    <img src="icon-192.png" alt="Logo Al-Carmelia" class="logo">
+    <h2 id="loginTitle">École Al-Carmelia</h2>
+    <p id="loginSub">Accès Espace Parents & Élèves</p>
+    <input type="text" id="studentIdInput" placeholder="ID Élève ou Email (Ex: ST-0001)">
+    <div class="pw-wrap">
+      <input type="password" id="studentPinInput" placeholder="Code PIN (Mot de passe)">
+      <button class="pw-toggle" type="button" onclick="togglePass('studentPinInput', this)">👁️</button>
+    </div>
+    <button class="btn primary" id="loginBtn" onclick="loginStudent()">Se Connecter</button>
+  </div>
+</div>
+
+<div id="parentContent" class="container" style="display:none">
+  <header class="header">
+    <div class="header-brand">
+      <img src="icon-192.png" alt="Logo">
+      <div>
+        <h1 id="studentNameDisplay">Élève</h1>
+        <p id="studentClassDisplay">Classe : -</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <select class="lang-switcher" onchange="switchLanguage(this.value)">
+        <option value="fr">🇫🇷 FR</option>
+        <option value="ar">🇱🇧 AR</option>
+        <option value="en">🇬🇧 EN</option>
+      </select>
+      <button class="btn primary" id="logoutBtn" style="width:auto;padding:8px 14px;font-size:12px" onclick="logoutStudent()">Déconnexion</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" id="tabGrades" onclick="switchTab('t_grades', this)">📝 Bulletins & Notes</button>
+    <button class="tab-btn" id="tabAtt" onclick="switchTab('t_att', this)">✓ Présence</button>
+    <button class="tab-btn" id="tabAgenda" onclick="switchTab('t_agenda', this)">📅 Agenda & Devoirs</button>
+    <button class="tab-btn" id="tabAnn" onclick="switchTab('t_ann', this)">📢 Annonces & Remarques</button>
+    <button class="tab-btn" id="tabSec" onclick="switchTab('t_security', this)">🔒 Mot de passe</button>
+  </nav>
+
+  <main>
+    <div id="t_grades" class="tab-content">
+      <div class="avg-box">
+        <h3 id="avgTitle">Moyenne Générale Estimée</h3>
+        <div id="overallAvgBox">-- / 20</div>
+      </div>
+      <div class="card">
+        <h3 id="gradesTitle">Aperçu des Notes</h3>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th id="thSubj">Matière</th>
+                <th id="thGrade">Note</th>
+                <th id="thCoef">Coefficient</th>
+                <th id="thRem">Remarque</th>
+              </tr>
+            </thead>
+            <tbody id="gradesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="t_att" class="tab-content" style="display:none">
+      <div class="card">
+        <h3 id="attTitle">Registre de Présence</h3>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr><th id="thDate">Date</th><th id="thStatus">Statut</th></tr>
+            </thead>
+            <tbody id="attTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="t_agenda" class="tab-content" style="display:none">
+      <div class="card">
+        <h3 id="agendaHeader">Devoirs & Examens À Venir</h3>
+        <div id="agendaList"></div>
+      </div>
+    </div>
+
+    <div id="t_ann" class="tab-content" style="display:none">
+      <div class="card">
+        <h3 id="annHeader">Annonces & Remarques Personnelles</h3>
+        <div id="annList"></div>
+      </div>
+    </div>
+
+    <div id="t_security" class="tab-content" style="display:none">
+      <div class="card" style="max-width:400px;margin:0 auto">
+        <h3 id="pwTitle">Changer le mot de passe</h3>
+        <div style="margin-bottom:12px">
+          <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:5px" id="lblOldPw">Ancien mot de passe</label>
+          <div class="pw-wrap">
+            <input type="password" id="oldPin" style="width:100%;padding:10px;border:1px solid #d8dde6;border-radius:10px">
+            <button class="pw-toggle" type="button" onclick="togglePass('oldPin', this)">👁️</button>
+          </div>
+        </div>
+        <div style="margin-bottom:15px">
+          <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:5px" id="lblNewPw">Nouveau mot de passe</label>
+          <div class="pw-wrap">
+            <input type="password" id="newPin" style="width:100%;padding:10px;border:1px solid #d8dde6;border-radius:10px">
+            <button class="pw-toggle" type="button" onclick="togglePass('newPin', this)">👁️</button>
+          </div>
+        </div>
+        <button class="btn primary" id="btnChangePw" onclick="changeParentPassword()">Changer le mot de passe</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const translations = {
+  fr: {
+    loginTitle: "École Al-Carmelia",
+    loginSub: "Accès Espace Parents & Élèves",
+    idPlaceholder: "ID Élève ou Email (Ex: ST-0001)",
+    pinPlaceholder: "Code PIN (Mot de passe)",
+    loginBtn: "Se Connecter",
+    logoutBtn: "Déconnexion",
+    tabGrades: "📝 Bulletins & Notes",
+    tabAtt: "✓ Présence",
+    tabAgenda: "📅 Agenda & Devoirs",
+    tabAnn: "📢 Annonces & Remarques",
+    tabSec: "🔒 Mot de passe",
+    avgTitle: "Moyenne Générale Estimée",
+    gradesTitle: "Aperçu des Notes",
+    thSubj: "Matière",
+    thGrade: "Note",
+    thCoef: "Coefficient",
+    thRem: "Remarque",
+    attTitle: "Registre de Présence",
+    thDate: "Date",
+    thStatus: "Statut",
+    agendaHeader: "Devoirs & Examens À Venir",
+    annHeader: "Annonces & Remarques Personnelles",
+    pwTitle: "Changer le mot de passe",
+    lblOldPw: "Ancien mot de passe",
+    lblNewPw: "Nouveau mot de passe",
+    btnChangePw: "Changer le mot de passe",
+    classLabel: "Classe",
+    idLabel: "ID"
+  },
+  ar: {
+    loginTitle: "مدرسة الكارملية",
+    loginSub: "بوابة الأهل والطلاب",
+    idPlaceholder: "رمز الطالب أو البريد (مثال: ST-0001)",
+    pinPlaceholder: "رمز البين / كلمة السر",
+    loginBtn: "تسجيل الدخول",
+    logoutBtn: "تسجيل الخروج",
+    tabGrades: "📝 العلامات والشهادات",
+    tabAtt: "✓ الحضور والغياب",
+    tabAgenda: "📅 المفكرة والفرض المدرسي",
+    tabAnn: "📢 الإعلانات والملاحظات",
+    tabSec: "🔒 كلمة السر",
+    avgTitle: "المعدل العام التقديري",
+    gradesTitle: "عرض العلامات",
+    thSubj: "المادة",
+    thGrade: "العلامة",
+    thCoef: "المعامل",
+    thRem: "ملاحظة",
+    attTitle: "سجل الحضور والغياب",
+    thDate: "التاريخ",
+    thStatus: "الحالة",
+    agendaHeader: "الفرائض والامتحانات القادمة",
+    annHeader: "الإعلانات والملاحظات الشخصية",
+    pwTitle: "تغيير كلمة السر",
+    lblOldPw: "كلمة السر القديمة",
+    lblNewPw: "كلمة السر الجديدة",
+    btnChangePw: "تغيير كلمة السر",
+    classLabel: "الصف",
+    idLabel: "الرمز"
+  },
+  en: {
+    loginTitle: "Al-Carmelia School",
+    loginSub: "Parents & Students Portal",
+    idPlaceholder: "Student ID or Email (e.g. ST-0001)",
+    pinPlaceholder: "PIN Code (Password)",
+    loginBtn: "Login",
+    logoutBtn: "Logout",
+    tabGrades: "📝 Report Cards & Grades",
+    tabAtt: "✓ Attendance",
+    tabAgenda: "📅 Agenda & Homework",
+    tabAnn: "📢 Announcements & Remarks",
+    tabSec: "🔒 Password",
+    avgTitle: "Estimated Overall Average",
+    gradesTitle: "Grades Overview",
+    thSubj: "Subject",
+    thGrade: "Grade",
+    thCoef: "Coefficient",
+    thRem: "Remark",
+    attTitle: "Attendance Record",
+    thDate: "Date",
+    thStatus: "Status",
+    agendaHeader: "Upcoming Homework & Exams",
+    annHeader: "Announcements & Personal Remarks",
+    pwTitle: "Change Password",
+    lblOldPw: "Old Password",
+    lblNewPw: "New Password",
+    btnChangePw: "Change Password",
+    classLabel: "Class",
+    idLabel: "ID"
+  }
+};
+
+function switchLanguage(lang) {
+  localStorage.setItem('app_lang', lang);
+  const t = translations[lang] || translations.fr;
+  document.getElementById('htmlRoot').dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('htmlRoot').lang = lang;
+
+  document.querySelectorAll('.lang-switcher').forEach(s => s.value = lang);
+
+  document.getElementById('loginTitle').innerText = t.loginTitle;
+  document.getElementById('loginSub').innerText = t.loginSub;
+  document.getElementById('studentIdInput').placeholder = t.idPlaceholder;
+  document.getElementById('studentPinInput').placeholder = t.pinPlaceholder;
+  document.getElementById('loginBtn').innerText = t.loginBtn;
+  document.getElementById('logoutBtn').innerText = t.logoutBtn;
+
+  document.getElementById('tabGrades').innerText = t.tabGrades;
+  document.getElementById('tabAtt').innerText = t.tabAtt;
+  document.getElementById('tabAgenda').innerText = t.tabAgenda;
+  document.getElementById('tabAnn').innerText = t.tabAnn;
+  document.getElementById('tabSec').innerText = t.tabSec;
+
+  document.getElementById('avgTitle').innerText = t.avgTitle;
+  document.getElementById('gradesTitle').innerText = t.gradesTitle;
+  document.getElementById('thSubj').innerText = t.thSubj;
+  document.getElementById('thGrade').innerText = t.thGrade;
+  document.getElementById('thCoef').innerText = t.thCoef;
+  document.getElementById('thRem').innerText = t.thRem;
+
+  document.getElementById('attTitle').innerText = t.attTitle;
+  document.getElementById('thDate').innerText = t.thDate;
+  document.getElementById('thStatus').innerText = t.thStatus;
+
+  document.getElementById('agendaHeader').innerText = t.agendaHeader;
+  document.getElementById('annHeader').innerText = t.annHeader;
+  document.getElementById('pwTitle').innerText = t.pwTitle;
+  document.getElementById('lblOldPw').innerText = t.lblOldPw;
+  document.getElementById('lblNewPw').innerText = t.lblNewPw;
+  document.getElementById('btnChangePw').innerText = t.btnChangePw;
+
+  if (currentStudent) renderParentData();
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDJRfis99yy8m9Z7pIHkw3U2i0jUqLXBec",
+  authDomain: "carmelia-school.firebaseapp.com",
+  projectId: "carmelia-school",
+  storageBucket: "carmelia-school.firebasestorage.app",
+  messagingSenderId: "710304409299",
+  appId: "1:710304409299:web:44c4c109d432a6e3ba1626",
+  measurementId: "G-E470YHZM0K"
+};
+
+firebase.initializeApp(firebaseConfig);
+const firestore = firebase.firestore();
+
+let db = {students:[], classes:[], subjects:[], agenda:[], announcements:[], attendance:{}, grades:{}};
+let currentStudent = null;
+
+function togglePass(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  if (inp.type === "password") {
+    inp.type = "text";
+    btn.textContent = "🙈";
+  } else {
+    inp.type = "password";
+    btn.textContent = "👁️";
+  }
+}
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+function loginStudent() {
+  const rawInput = document.getElementById('studentIdInput').value.trim();
+  const pin = document.getElementById('studentPinInput').value.trim();
+
+  if(!rawInput || !pin) return alert("Veuillez remplir tous les champs.");
+
+  firestore.collection("school_data").doc("main").get().then((doc) => {
+    if (doc.exists) {
+      db = doc.data();
+      const student = (db.students || []).find(s => 
+        (s.id.toLowerCase() === rawInput.toLowerCase() || (s.email && s.email.toLowerCase() === rawInput.toLowerCase())) &&
+        String(s.pin) === String(pin)
+      );
+
+      if (student) {
+        sessionStorage.setItem('parent_student_id', student.id.toUpperCase());
+        currentStudent = student;
+        document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('parentContent').style.display = 'block';
+        renderParentData();
+      } else {
+        alert("ID Élève ou Code PIN incorrect!");
+      }
+    }
+  }).catch(err => alert("Erreur: " + err.message));
+}
+
+function logoutStudent() {
+  sessionStorage.removeItem('parent_student_id');
+  currentStudent = null;
+  document.getElementById('loginModal').style.display = 'flex';
+  document.getElementById('parentContent').style.display = 'none';
+  document.getElementById('studentIdInput').value = '';
+  document.getElementById('studentPinInput').value = '';
+}
+
+let isFirstLoad = true;
+let prevAgendaLength = 0;
+let prevAnnLength = 0;
+
+firestore.collection("school_data").doc("main").onSnapshot((doc) => {
+  if (doc.exists) {
+    const newData = doc.data();
+
+    if (!isFirstLoad) {
+      const newAgenda = newData.agenda || [];
+      if (newAgenda.length > prevAgendaLength) {
+        const lastDevoir = newAgenda[newAgenda.length - 1];
+        sendLocalNotification(
+          "Nouveau Devoir / Agenda 📚",
+          (lastDevoir.subject ? lastDevoir.subject + ": " : "") + (lastDevoir.title || "Nouveau devoir ajouté")
+        );
+      }
+
+      const newAnn = newData.announcements || [];
+      if (newAnn.length > prevAnnLength) {
+        const lastAnnonce = newAnn[newAnn.length - 1];
+        sendLocalNotification(
+          "Nouvelle Annonce 📢",
+          lastAnnonce.title || "Une nouvelle annonce a été publiée"
+        );
+      }
+    }
+
+    db = newData;
+    prevAgendaLength = (db.agenda || []).length;
+    prevAnnLength = (db.announcements || []).length;
+    isFirstLoad = false;
+
+    const savedId = sessionStorage.getItem('parent_student_id');
+    if (savedId) {
+      currentStudent = (db.students || []).find(s => s.id.toUpperCase() === savedId.toUpperCase());
+      if (currentStudent) {
+        document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('parentContent').style.display = 'block';
+        renderParentData();
+      } else {
+        logoutStudent();
+      }
+    } else {
+      document.getElementById('loginModal').style.display = 'flex';
+      document.getElementById('parentContent').style.display = 'none';
+    }
+  }
+});
+
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).style.display = 'block';
+  btn.classList.add('active');
+}
+
+function renderParentData() {
+  if (!currentStudent) return;
+  const lang = localStorage.getItem('app_lang') || 'fr';
+  const t = translations[lang] || translations.fr;
+
+  try {
+    if (typeof webpushr === 'function') {
+      webpushr('attributes', {
+        'role': 'parent',
+        'classe': currentStudent.class || '',
+        'student_id': currentStudent.id || ''
+      });
+    }
+  } catch (e) {
+    console.warn("Webpushr error:", e);
+  }
+
+  document.getElementById('studentNameDisplay').textContent = currentStudent.name;
+  document.getElementById('studentClassDisplay').textContent = `${t.classLabel} : ${currentStudent.class} · ${t.idLabel} : ${currentStudent.id}`;
+
+  const studentGrades = (db.grades && db.grades[currentStudent.id]) ? db.grades[currentStudent.id] : [];
+  let totalNormalizedScore = 0, totalCoef = 0;
+  
+  gradesTableBody.innerHTML = studentGrades.map(g => {
+    const score = parseFloat(g.score) || 0;
+    const maxScore = parseFloat(g.maxScore) || 20;
+    const coef = parseFloat(g.coef) || 1;
+    
+    const normalizedTo20 = (score / maxScore) * 20;
+    totalNormalizedScore += normalizedTo20 * coef;
+    totalCoef += coef;
+
+    return `<tr>
+      <td><strong>${esc(g.subject)}</strong></td>
+      <td>${esc(score)} / ${esc(maxScore)}</td>
+      <td>${esc(coef)}</td>
+      <td>${esc(g.remark || '-')}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="4" class="empty">-</td></tr>';
+
+  if (totalCoef > 0) {
+    document.getElementById('overallAvgBox').textContent = (totalNormalizedScore / totalCoef).toFixed(2) + ' / 20';
+  } else {
+    document.getElementById('overallAvgBox').textContent = '-- / 20';
+  }
+
+  const attRows = [];
+  if (db.attendance) {
+    Object.keys(db.attendance).forEach(key => {
+      const [date, className] = key.split('|');
+      if (className === currentStudent.class && db.attendance[key][currentStudent.id]) {
+        const status = db.attendance[key][currentStudent.id];
+        const badgeClass = status === 'Present' ? 'green' : 'red';
+        const label = status === 'Present' ? (lang==='ar'?'حاضر':'Présent') : (lang==='ar'?'غائب':'Absent');
+        attRows.push(`<tr><td>${esc(date)}</td><td><span class="badge ${badgeClass}">${label}</span></td></tr>`);
+      }
+    });
+  }
+  attTableBody.innerHTML = attRows.join('') || '<tr><td colspan="2" class="empty">-</td></tr>';
+
+  const studentAgenda = (db.agenda || []).filter(a => a.class === currentStudent.class);
+  agendaList.innerHTML = studentAgenda.map(a => `
+    <div style="padding:12px 0;border-bottom:1px solid var(--line)">
+      <strong>${esc(a.title)}</strong> <span class="badge">${esc(a.type)}</span>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">${esc(a.date)} · ${esc(a.subject)}</div>
+      <p style="margin:6px 0 0;font-size:13.5px">${esc(a.details || '')}</p>
+    </div>
+  `).join('') || '<div class="empty">-</div>';
+
+  const studentAnn = (db.announcements || []).filter(a => a.target === 'All' || a.target === currentStudent.class || a.target === currentStudent.id);
+  annList.innerHTML = studentAnn.map(a => `
+    <div style="padding:12px 0;border-bottom:1px solid var(--line)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>${esc(a.title)}</strong>
+        <span class="badge ${a.target === currentStudent.id ? 'red' : 'blue'}">
+          ${a.target === currentStudent.id ? '📍 Personnel' : '📢 Général'}
+        </span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">${esc(a.date)} ${a.author ? '· De: ' + esc(a.author) : ''}</div>
+      <p style="margin:6px 0 0;font-size:13.5px">${esc(a.body)}</p>
+    </div>
+  `).join('') || '<div class="empty">-</div>';
+}
+
+function changeParentPassword() {
+  const oldP = document.getElementById('oldPin').value.trim();
+  const newP = document.getElementById('newPin').value.trim();
+
+  if (!oldP || !newP) return alert("Veuillez remplir tous les champs.");
+
+  if (currentStudent) {
+    if (String(currentStudent.pin) !== String(oldP)) {
+      return alert("Ancien mot de passe incorrect.");
+    }
+    currentStudent.pin = newP;
+    const idx = db.students.findIndex(s => s.id === currentStudent.id);
+    if (idx !== -1) {
+      db.students[idx].pin = newP;
+      firestore.collection("school_data").doc("main").set(db);
+    }
+    alert("Mot de passe modifié avec succès!");
+    document.getElementById('oldPin').value = '';
+    document.getElementById('newPin').value = '';
+  }
+}
+
+// Initial language load
+const savedLang = localStorage.getItem('app_lang') || 'fr';
+switchLanguage(savedLang);
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./webpushr-sw.js')
+          .then(reg => console.log('Webpushr SW enregistré!'))
+          .catch(err => console.error('Erreur Service Worker:', err));
+      });
+    }
+
+    function requestNotificationPermission() {
+      if ('Notification' in window) {
+        if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') console.log('Permission accordée!');
+          });
+        }
+      }
+    }
+    requestNotificationPermission();
+
+    function sendLocalNotification(title, body) {
+      if ('serviceWorker' in navigator && Notification.permission === 'granted') {
+        navigator.serviceWorker.ready.then(registration => {
+          registration.showNotification(title, {
+            body: body,
+            icon: './icon-192.png',
+            badge: './icon-192.png',
+            vibrate: [200, 100, 200]
+          });
+        });
+      }
+    }
+</script>
+</body>
+</html>
