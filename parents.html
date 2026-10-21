@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="fr" dir="ltr" id="htmlRoot">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Al Carmelia Kobayat · Espace Parents</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7b1238">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Al Carmelia">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<!-- OneSignal Tracking SDK -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "39415e32-8162-42f3-9f04-8db482ea432e",
+    });
+  });
+</script>
+
+<style>
+:root{--burg:#7b1238;--navy:#12365f;--gold:#d7ae45;--cream:#faf7ef;--ink:#172235;--muted:#718096;--line:#e6e9ef;--white:#fff;--danger:#b42318;--green:#16825d}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f4f6f9;color:var(--ink)}
+button,input,select{font:inherit}
+
+.login-modal{position:fixed;inset:0;background:rgba(18,54,95,0.95);display:flex;align-items:center;justify-content:center;z-index:999;padding:15px}
+.login-box{background:#fff;padding:35px 25px;border-radius:18px;width:min(400px,100%);text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2);position:relative}
+.login-box img.logo{width: 220px; max-width: 80%; height: auto; object-fit: contain; margin-bottom: 15px;}
+.login-box h2{margin:0 0 4px;color:var(--navy);font-size:22px}
+.login-box p{margin:0 0 20px;color:var(--muted);font-size:13.5px}
+.login-box input{width:100%;padding:12px;border:1px solid #d8dde6;border-radius:10px;margin-bottom:12px;text-align:left;font-size:14px;outline:none}
+
+.pw-wrap{position:relative;display:flex;align-items:center;margin-bottom:12px}
+.pw-wrap input{margin-bottom:0!important;padding-right:40px!important}
+.pw-toggle{position:absolute;right:12px;background:none;border:none;cursor:pointer;font-size:18px;padding:0;color:var(--muted)}
+
+.btn{border:0;border-radius:10px;padding:11px 16px;cursor:pointer;font-weight:650;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:14px;width:100%}
+.primary{background:var(--burg);color:#fff}
+
+.container{max-width:900px;margin:0 auto;padding:20px 15px}
+.header{background:#fff;border-radius:16px;padding:20px;border:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;flex-wrap:wrap}
+.header-brand{display:flex;align-items:center;gap:15px}
+.header-brand img{width:55px;height:55px;object-fit:contain}
+.header h1{margin:0;font-size:20px;color:var(--navy)}
+.header p{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+.tabs{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:5px}
+.tab-btn{background:#fff;border:1px solid var(--line);padding:10px 18px;border-radius:10px;cursor:pointer;white-space:nowrap;font-weight:600;color:var(--muted)}
+.tab-btn.active{background:var(--burg);color:#fff;border-color:var(--burg)}
+
+.card{background:#fff;border-radius:16px;border:1px solid var(--line);padding:20px;margin-bottom:15px}
+.badge{display:inline-block;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;background:#eef3fa;color:var(--navy)}
+.badge.green{background:#e8f7f0;color:var(--green)}
+.empty{text-align:center;padding:30px;color:var(--muted)}
+
+.lang-switcher {
+  background: #f0f4f8;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  outline: none;
+}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div id="loginModal" class="login-modal">
+  <div class="login-box">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+      <select class="lang-switcher" onchange="switchLanguage(this.value)">
+        <option value="fr">🇫🇷 FR</option>
+        <option value="ar">🇱🇧 AR</option>
+        <option value="en">🇬🇧 EN</option>
+      </select>
+    </div>
+    <img src="icon-192.png" alt="Logo Al Carmelia Kobayat" class="logo">
+    <h2 id="loginTitle">Al Carmelia Kobayat</h2>
+    <p id="loginSub">Accès Espace Parents & Élèves</p>
+    <input type="text" id="classCodeInput" placeholder="Code Classe (Ex: EB1-A)">
+    <div class="pw-wrap">
+      <input type="password" id="classPinInput" placeholder="Code PIN de la classe">
+      <button class="pw-toggle" type="button" onclick="togglePass('classPinInput', this)">👁️</button>
+    </div>
+    <button class="btn primary" id="loginBtn" onclick="loginClass()">Se Connecter</button>
+    <button class="btn notif-toggle-btn" style="background:var(--navy);color:#fff;margin-top:10px;" onclick="enableAppNotifications()">🔔 Activer les notifications</button>
+  </div>
+</div>
+
+<div id="parentContent" class="container" style="display:none">
+  <div id="iosNotice" style="display:none; background:#fff3cd; color:#856404; padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid #ffeeba; font-size:13px; text-align:center;">
+    📲 <strong>Lal-Ahil (iPhone Users):</strong> La-yusalak notifications l-devoirs, e3mel 📤 <em>Partager</em> -> ➕ <em>Sur l'écran d'accueil</em> bil-Safari.
+  </div>
+
+  <header class="header">
+    <div class="header-brand">
+      <img src="icon-192.png" alt="Logo">
+      <div>
+        <h1 id="classNameDisplay">Classe : -</h1>
+        <p id="classLevelDisplay">Cycle : -</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <button class="btn notif-toggle-btn" style="background:var(--navy);color:#fff;width:auto;padding:8px 14px;font-size:12px;" onclick="enableAppNotifications()">🔔 Activer les notifications</button>
+      <select class="lang-switcher" onchange="switchLanguage(this.value)">
+        <option value="fr">🇫🇷 FR</option>
+        <option value="ar">🇱🇧 AR</option>
+        <option value="en">🇬🇧 EN</option>
+      </select>
+      <button class="btn primary" id="logoutBtn" style="width:auto;padding:8px 14px;font-size:12px" onclick="logoutClass()">Déconnexion</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" id="tabAgenda" onclick="switchTab('t_agenda', this)">📅 Agenda & Devoirs</button>
+    <button class="tab-btn" id="tabWork" onclick="switchTab('t_work', this)">📖 Travail Quotidien (En classe)</button>
+  </nav>
+
+  <main>
+    <div id="t_agenda" class="tab-content">
+      <div class="card">
+        <h3 id="agendaHeader">📅 Agenda & Devoirs à la maison</h3>
+        <div class="date-test-toolbar" data-for="agendaList" style="display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:12px;margin:10px 0;background:#f4f6f9;border:1px solid #e6e9ef;border-radius:12px"><label style="font-size:13px;font-weight:650">📅 Date · Agenda</label><input aria-label="Date" type="date" id="filter_agendaList" style="border:1px solid #d8dde6;border-radius:9px;padding:8px"><button type="button" onclick="changeDateFilter('agendaList',-1)" style="padding:8px;border:1px solid #ddd;border-radius:8px;cursor:pointer">◀</button><button type="button" onclick="changeDateFilter('agendaList',1)" style="padding:8px;border:1px solid #ddd;border-radius:8px;cursor:pointer">▶</button><button type="button" onclick="resetDateFilter('agendaList')" style="padding:8px;border:1px solid #ddd;border-radius:8px;cursor:pointer">Aujourd'hui</button><button type="button" onclick="showAllDates('agendaList')" style="padding:8px;border:1px solid #ddd;border-radius:8px;cursor:pointer">Toutes les dates</button></div><div id="agendaList"></div>
+      </div>
+    </div>
+
+    <div id="t_work" class="tab-content" style="display:none">
+      <div class="card">
+        <h3 id="workHeader">📖 Travail Quotidien effectué en classe</h3>
+        <div class="date-test-toolbar" data-for="workList" style="display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:12px;margin:10px 0;background:#f4f6f9;border:1px solid #e6e9ef;border-radius:12px"><label style="font-size:13px;font-weight:650">📅 Date · Travail Quotidien</label><input aria-label="Date" type="date" id="filter_workList" style="border:1px solid #d8dde6;border-radius:9px;padding:8px"><button type="button" onclick="changeDateFilter('workList',-1)" style="padding:8px;border:1px solid #ddd;border-radius:8px;cursor:pointer">◀</button><button type="button" onclick="changeDateFilter('workList',1)" style="padding:8px;border:1px solid #ddd;border-radius:8px;cursor:pointer">▶</button><button type="button" onclick="resetDateFilter('workList')" style="padding:8px;border:1px solid #ddd;border-radius:8px;cursor:pointer">Aujourd'hui</button><button type="button" onclick="showAllDates('workList')" style="padding:8px;border:1px solid #ddd;border-radius:8px;cursor:pointer">Toutes les dates</button></div><div id="workList"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const translations = {
+  fr: {
+    loginTitle: "Al Carmelia Kobayat",
+    loginSub: "Accès Espace Parents & Élèves",
+    codePlaceholder: "Code Classe (Ex: EB1-A)",
+    pinPlaceholder: "Code PIN de la classe",
+    loginBtn: "Se Connecter",
+    logoutBtn: "Déconnexion",
+    tabAgenda: "📅 Agenda & Devoirs",
+    tabWork: "📖 Travail Quotidien (En classe)",
+    agendaHeader: "📅 Agenda & Devoirs à la maison",
+    workHeader: "📖 Travail Quotidien effectué en classe",
+    classLabel: "Classe",
+    cycleLabel: "Cycle",
+    btnNotif: "🔔 Activer les notifications"
+  },
+  ar: {
+    loginTitle: "الكرملية القبيات",
+    loginSub: "بوابة الأهل والطلاب",
+    codePlaceholder: "رمز الصف (مثال: EB1-A)",
+    pinPlaceholder: "رمز البين للصف",
+    loginBtn: "تسجيل الدخول",
+    logoutBtn: "تسجيل الخروج",
+    tabAgenda: "📅 المفكرة والفرض المدرسي",
+    tabWork: "📖 العمل اليومي في الصف",
+    agendaHeader: "📅 المفكرة والفرض المنزلي",
+    workHeader: "📖 ما تم إنجازه اليوم داخل الصف",
+    classLabel: "الصف",
+    cycleLabel: "المرحلة",
+    btnNotif: "🔔 تفعيل الإشعارات"
+  },
+  en: {
+    loginTitle: "Al Carmelia Kobayat",
+    loginSub: "Parents & Students Portal",
+    codePlaceholder: "Class Code (e.g. EB1-A)",
+    pinPlaceholder: "Class PIN Code",
+    loginBtn: "Login",
+    logoutBtn: "Logout",
+    tabAgenda: "📅 Agenda & Homework",
+    tabWork: "📖 Class Daily Work",
+    agendaHeader: "📅 Agenda & Homework",
+    workHeader: "📖 Daily Classwork completed in class",
+    classLabel: "Class",
+    cycleLabel: "Cycle",
+    btnNotif: "🔔 Enable Notifications"
+  }
+};
+
+function switchLanguage(lang) {
+  localStorage.setItem('app_lang', lang);
+  const t = translations[lang] || translations.fr;
+  document.getElementById('htmlRoot').dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('htmlRoot').lang = lang;
+
+  document.querySelectorAll('.lang-switcher').forEach(s => s.value = lang);
+
+  document.getElementById('loginTitle').innerText = t.loginTitle;
+  document.getElementById('loginSub').innerText = t.loginSub;
+  document.getElementById('classCodeInput').placeholder = t.codePlaceholder;
+  document.getElementById('classPinInput').placeholder = t.pinPlaceholder;
+  document.getElementById('loginBtn').innerText = t.loginBtn;
+  document.getElementById('logoutBtn').innerText = t.logoutBtn;
+
+  document.querySelectorAll('.notif-toggle-btn').forEach(b => b.innerText = t.btnNotif);
+
+  document.getElementById('tabAgenda').innerText = t.tabAgenda;
+  document.getElementById('tabWork').innerText = t.tabWork;
+
+  document.getElementById('agendaHeader').innerText = t.agendaHeader;
+  document.getElementById('workHeader').innerText = t.workHeader;
+
+  if (currentClass) {
+    document.getElementById('classNameDisplay').textContent = `${t.classLabel} : ${currentClass.code}`;
+    document.getElementById('classLevelDisplay').textContent = `${t.cycleLabel} : ${currentClass.level || '-'}`;
+  }
+}
+
+function enableAppNotifications() {
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+  if (isIOS && !isStandalone) {
+    alert("📲 La-yusalak notifications 3al iPhone:\n\n1. E3mel 'Partager' (📤) bi-asfal Safari.\n2. Khaiyyar 'Sur l'écran d'accueil' (➕).\n3. Ifta7 l-app min l-chache l-asasiye w fa33el l-notifications.");
+    return;
+  }
+
+  if (window.OneSignalDeferred) {
+    OneSignalDeferred.push(async function(OneSignal) {
+      try {
+        await OneSignal.Notifications.requestPermission();
+        if (OneSignal.User && OneSignal.User.PushSubscription) {
+          await OneSignal.User.PushSubscription.optIn();
+        }
+        alert("✅ Notifications mfa33ale bi-naja7!");
+      } catch (err) {
+        console.warn("OneSignal optIn notice:", err);
+        alert("✅ Notifications mfa33ale!");
+      }
+    });
+  } else {
+    alert("⚠️ OneSignal ma kene jahiz, e3mel Refresh.");
+  }
+}
+
+function checkNotifPermission() {
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  
+  const iosNotice = document.getElementById('iosNotice');
+  if (iosNotice) {
+    if (isIOS && !isStandalone) {
+      iosNotice.style.display = 'block';
+    } else {
+      iosNotice.style.display = 'none';
+    }
+  }
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDJRfis99yy8m9Z7pIHkw3U2i0jUqLXBec",
+  authDomain: "carmelia-school.firebaseapp.com",
+  projectId: "carmelia-school",
+  storageBucket: "carmelia-school.firebasestorage.app",
+  messagingSenderId: "710304409299",
+  appId: "1:710304409299:web:44c4c109d432a6e3ba1626",
+  measurementId: "G-E470YHZM0K"
+};
+
+firebase.initializeApp(firebaseConfig);
+const firestore = firebase.firestore();
+
+let currentClass = null;
+
+function togglePass(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  if (inp.type === "password") {
+    inp.type = "text";
+    btn.textContent = "🙈";
+  } else {
+    inp.type = "password";
+    btn.textContent = "👁️";
+  }
+}
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+function loginClass() {
+  const rawInput = document.getElementById('classCodeInput').value.trim();
+  const pin = document.getElementById('classPinInput').value.trim();
+
+  if(!rawInput || !pin) return alert("Veuillez remplir tous les champs.");
+
+  firestore.collection("classes").get().then((snap) => {
+    const found = snap.docs.map(d => ({docId: d.id, ...d.data()})).find(c => 
+      (c.docId.toLowerCase() === rawInput.toLowerCase() || (c.code && c.code.toLowerCase() === rawInput.toLowerCase())) &&
+      String(c.pin || '1234').trim() === String(pin)
+    );
+
+    if (found) {
+      currentClass = found;
+      sessionStorage.setItem('parent_class_code', found.code || found.docId);
+      document.getElementById('loginModal').style.display = 'none';
+      document.getElementById('parentContent').style.display = 'block';
+      initClassListeners();
+    } else {
+      alert("Code Classe ou PIN incorrect!");
+    }
+  }).catch(err => alert("Erreur: " + err.message));
+}
+
+function logoutClass() {
+  sessionStorage.removeItem('parent_class_code');
+  currentClass = null;
+  document.getElementById('loginModal').style.display = 'flex';
+  document.getElementById('parentContent').style.display = 'none';
+  document.getElementById('classCodeInput').value = '';
+  document.getElementById('classPinInput').value = '';
+  checkNotifPermission();
+}
+
+function checkSavedLogin() {
+  const savedCode = sessionStorage.getItem('parent_class_code');
+  if (savedCode) {
+    firestore.collection("classes").get().then(snap => {
+      const found = snap.docs.map(d => ({docId: d.id, ...d.data()})).find(c => 
+        c.docId.toLowerCase() === savedCode.toLowerCase() || (c.code && c.code.toLowerCase() === savedCode.toLowerCase())
+      );
+      if (found) {
+        currentClass = found;
+        document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('parentContent').style.display = 'block';
+        initClassListeners();
+      } else {
+        logoutClass();
+      }
+    });
+  }
+}
+
+function initClassListeners() {
+  if (!currentClass) return;
+  const lang = localStorage.getItem('app_lang') || 'fr';
+  const t = translations[lang] || translations.fr;
+
+  try {
+    if (window.OneSignalDeferred) {
+      OneSignalDeferred.push(async function(OneSignal) {
+        if (OneSignal.User && OneSignal.User.PushSubscription) {
+          await OneSignal.User.PushSubscription.optIn();
+        }
+        OneSignal.User.addTags({
+          'role': 'parent',
+          'classe': currentClass.code || ''
+        });
+      });
+    }
+  } catch (e) {
+    console.warn("OneSignal tag error:", e);
+  }
+
+  document.getElementById('classNameDisplay').textContent = `${t.classLabel} : ${currentClass.code}`;
+  document.getElementById('classLevelDisplay').textContent = `${t.cycleLabel} : ${currentClass.level || '-'}`;
+
+  firestore.collection("agenda").where("class", "==", currentClass.code).onSnapshot(snapshot => {
+    const list = snapshot.docs.map(d => d.data());
+    window.carmeliaRender_agendaList = () => { document.getElementById('agendaList').innerHTML = filterBySelectedDate(list, 'agendaList').slice().reverse().map(a => `
+      <div style="padding:14px 0;border-bottom:1px solid var(--line)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong>${esc(a.title)}</strong> 
+          <span class="badge">${esc(a.type || 'Devoir')}</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">${esc(a.date)} · ${esc(a.subject)}${a.teacher ? ' · Prof: ' + esc(a.teacher) : ''}</div>
+        <p style="margin:8px 0 0;font-size:14px;line-height:1.4;white-space:pre-wrap">${esc(a.details || '')}</p>
+      </div>
+    `).join('') || '<div class="empty">Aucun devoir enregistré pour le moment.</div>'; }; window.carmeliaRender_agendaList();
+  });
+
+  firestore.collection("travail_quotidien").where("class", "==", currentClass.code).onSnapshot(snapshot => {
+    const list = snapshot.docs.map(d => d.data());
+    window.carmeliaRender_workList = () => { document.getElementById('workList').innerHTML = filterBySelectedDate(list, 'workList').slice().reverse().map(w => `
+      <div style="padding:14px 0;border-bottom:1px solid var(--line)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong style="color:var(--navy);font-size:15px">${esc(w.title || 'Travail en classe')}</strong>
+          <span class="badge green">${esc(w.subject)}</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">📅 ${esc(w.date)}${w.teacher ? ' · Enseignant: ' + esc(w.teacher) : ''}</div>
+        <p style="margin:8px 0 0;font-size:14px;line-height:1.4;white-space:pre-wrap">${esc(w.details || '')}</p>
+        ${carmeliaAttachmentHTML(w)}
+      </div>
+    `).join('') || '<div class="empty">Aucun travail quotidien enregistré pour le moment.</div>'; }; window.carmeliaRender_workList();
+  });
+}
+
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).style.display = 'block';
+  btn.classList.add('active');
+}
+
+const savedLang = localStorage.getItem('app_lang') || 'fr';
+switchLanguage(savedLang);
+checkNotifPermission();
+checkSavedLogin();
+</script>
+
+<script>
+// TEST ONLY: client-side date presentation; original Firebase queries, saves and permissions unchanged.
+const carmeliaDateFilters = {agendaList: localDate(), workList: localDate()};
+function localDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function filterBySelectedDate(items,key){const date=carmeliaDateFilters[key];return date?items.filter(x=>String(x.date||'').slice(0,10)===date):items;}
+function redrawDateFilter(key){const el=document.getElementById('filter_'+key);if(el)el.value=carmeliaDateFilters[key]||'';const list=document.getElementById(key);if(list&&list.dataset.cachedHtml){};
+// Re-run existing Firestore listener rendering via a safe UI-only DOM filter for current content.
+const root=document.getElementById(key);if(!root)return;
+if(!root.dataset.originalHtml)root.dataset.originalHtml=root.innerHTML;
+const cards=Array.from(root.children);cards.forEach(card=>{const t=card.textContent||'';const d=carmeliaDateFilters[key];card.style.display=(!d||t.includes(d))?'':'none';});
+}
+function setDateFilter(key,value){carmeliaDateFilters[key]=value;const el=document.getElementById('filter_'+key);if(el)el.value=value||'';
+const render=window['carmeliaRender_'+key];if(typeof render==='function')render();
+}
+function changeDateFilter(key,days){const v=carmeliaDateFilters[key]||localDate();const d=new Date(v+'T12:00:00');d.setDate(d.getDate()+days);setDateFilter(key,`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);}
+function resetDateFilter(key){setDateFilter(key,localDate());}
+function showAllDates(key){setDateFilter(key,'');}
+document.addEventListener('change',e=>{if(e.target.id==='filter_agendaList')setDateFilter('agendaList',e.target.value);if(e.target.id==='filter_workList')setDateFilter('workList',e.target.value);});
+document.addEventListener('DOMContentLoaded',()=>{for(const key of ['agendaList','workList']){const el=document.getElementById('filter_'+key);if(el)el.value=carmeliaDateFilters[key];}});
+</script>
+<script>
+
+// Firebase Storage upload helper; invoked only after validating a real TEST Firebase project.
+async function carmeliaUploadAttachment(file, docId) {
+ if (!file) return null;
+ const allowed = ['image/jpeg','image/png','application/pdf'];
+ if (!allowed.includes(file.type) || file.size > 5*1024*1024) throw new Error('JPG, PNG ou PDF, maximum 5 Mo.');
+ const ext = file.type === 'application/pdf' ? 'pdf' : (file.type === 'image/png' ? 'png' : 'jpg');
+ const random = (self.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now())+'-'+Math.random().toString(36).slice(2);
+ const path = 'travail_quotidien/'+docId+'/'+random+'.'+ext;
+ const ref = firebase.storage().ref(path);
+ await ref.put(file, {contentType:file.type, customMetadata:{documentId:docId}});
+ return {name:file.name, type:file.type, path:path, url:await ref.getDownloadURL()};
+}
+function carmeliaAttachmentHTML(w){
+ if(!w.attachment || !w.attachment.url) return '';
+ const url=String(w.attachment.url);
+ if(!/^https:\/\//.test(url)) return '';
+ return '<div style="margin-top:8px"><a target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">📎 '+esc(w.attachment.name||'Ouvrir la pièce jointe')+'</a></div>';
+}
+function carmeliaError(e){alert('Erreur : '+(e && e.message ? e.message : String(e)));}
+
+</script>
+</body>
+</html>
